@@ -1,0 +1,1 @@
+<?php $name246="Xain Khan"; echo $name246 ?>
