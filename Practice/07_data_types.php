@@ -25,7 +25,7 @@ echo "<br>";
 // Employee is a class ---> Xain Khan can be one object 
 
 // Array - Used to store multiple values in a single variable
-$friends = array("xk","uk","kx","ku");
+$friends = array("xk","uk","kx","kuk");
 echo var_dump($friends);
 echo "<br>";
 echo $friends[0];
