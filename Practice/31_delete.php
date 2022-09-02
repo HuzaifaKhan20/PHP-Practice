@@ -1,4 +1,5 @@
 <?php
+
 //Connecting to the Database
 $servername = "localhost";
 $username = "root";
@@ -16,21 +17,20 @@ else {
     echo "Connection was successful <br>";
 }
 
-// Variables to be inserted into the table
-$name = "UK";
-$destination = "USA";
-
-// SQL query to be executed
-$sql = "INSERT INTO `contactus` (`name`, `concern`) VALUES ('$name', '$destination');";
+$sql = "DELETE FROM `contactus` WHERE `name` = 'UK' LIMIT 7";
 $result = mysqli_query($conn, $sql);
 
+// Checking of rows affected in the database
+// If it returns -1 so it means that there is some error in query
+$aff = mysqli_affected_rows($conn);
+echo "<br>Number of affected rows : $aff <br>";
 
-//Add a new learning_table to the learning_table table in the database
-if ($result){
-    echo "The record has been inserted successfully!";
+if($result){
+    echo "Delete successfully";
 }
 else {
-    echo "The record was not inserted successfully because of this error --->" . mysqli_error($conn);
+    $err = mysqli_error($conn);
+    echo "Not Delete successfully due to this error --> $err";
 }
 
 ?>
