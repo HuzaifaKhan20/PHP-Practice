@@ -1,6 +1,8 @@
 <?php
 // INSERT INTO `notes` (`s.no`, `title`, `description`, `tstamp`) VALUES ('1', 'Go to buy books', 'Hey XK,\r\nGo to buy books and delete this task when you are done with this task.', '2022-09-02 12:02:04');
 $insert = false;
+$update = false;
+$delete = false;
 //Connecting to the Database
 $servername = "localhost";
 $username = "root";
@@ -15,18 +17,44 @@ if (!$conn){
     die("Sorry we failed to connect: " . mysqli_connect_error());
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-  $title = $_POST['title'];
-  $description = $_POST['description'];
-  $sql = "INSERT INTO `notes` (`title`, `description`) VALUES ('$title', '$description');";
+if (isset($_GET['delete'])){
+  $sno = $_GET['delete'];
+  $delete = true;
+  $sql = "DELETE FROM `notes` WHERE `s.no` = $sno";
   $result = mysqli_query($conn, $sql);
+}
 
-  if ($result){
-    // echo "The record has been inserted successfully!";
-    $insert = true;
+if ($_SERVER['REQUEST_METHOD'] == 'POST'){
+  if(isset( $_POST['snoEdit'])){
+    // Update the record 
+    $sno = $_POST['snoEdit'];
+    $title = $_POST['titleEdit'];
+    $description = $_POST['descriptionEdit'];
+    // SQL query to be executed 
+    $sql = "UPDATE `notes` SET `title` = '$title' , `description` = '$description' WHERE `notes`.`s.no` = $sno";
+    $result = mysqli_query($conn, $sql);
+    if ($result){
+      $update = true;
+    }
+    else {
+      echo "We could not updated the record successfully";
+    }
+
   }
   else {
-    echo "The record was not inserted successfully because of this error --->" . mysqli_error($conn);
+    $title = $_POST['title'];
+    $description = $_POST['description'];
+    // SQL query to be executed 
+    $sql = "INSERT INTO `notes` (`title`, `description`) VALUES ('$title', '$description');";
+    $result = mysqli_query($conn, $sql);
+
+    if ($result){
+      // echo "The record has been inserted successfully!";
+      $insert = true;
+    }
+    else {
+      echo "The record was not inserted successfully because of this error --->" . mysqli_error($conn);
+    }
   }
 }
 
@@ -44,11 +72,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
 
     <link rel="stylesheet" href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css">
       <title>PHP CRUD App</title>
+ 
   </head>
   <body>
+        <!-- Edit modal -->
+    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+      Edit modal
+    </button> -->
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editModalLabel">Edit this Note</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="/xkphpt/Crud-PHP/crud.php" method="POST">
+            <div class="modal-body">
+                <input type="hidden" name="snoEdit" id="snoEdit">
+                <div class="mb-3">
+                <label for="title" class="form-label">Note Title</label>
+                <input type="text" class="form-control" id="titleEdit" name="titleEdit" aria-describedby="emailHelp">
+                </div>
+                <div class="mb-3">
+                    <label for="description" class="form-label">Note Description</label>
+                    <textarea class="form-control" id="descriptionEdit" name="descriptionEdit" rows="3"></textarea>
+                </div>
+              </div>
+              <div class="modal-footer d-block mr-auto">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">PHP CRUD</a>
+          <a class="navbar-brand" href="#"><img src="./php-logo.png" height="38" alt=""></a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -81,8 +145,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
       }
       ?>
 
+      <?php
+      if($delete){
+        echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+        <strong>Success!</strong> Your note has been deleted successfully
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>";
+      }
+      ?>
+
+      <?php
+      if($update){
+        echo "<div class='alert alert-success alert-dismissible fade show' role='alert'>
+        <strong>Success!</strong> Your note has been updated successfully
+        <button type='button' class='btn-close' data-bs-dismiss='alert' aria-label='Close'></button>
+        </div>";
+      }
+      ?>
+
       <div class="container my-4">
-            <h2>Add a Note</h2>
+            <h2>Add a Note to iNote</h2>
             <form action="/xkphpt/Crud-PHP/crud.php" method="POST">
                 <div class="mb-3">
                 <label for="title" class="form-label">Note Title</label>
@@ -96,9 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
             </form>
       </div>
 
-      <div class="container">
-    
-
+      <div class="container mb-5">
         <table class="table" id="myTable">
           <thead>
             <tr>
@@ -112,18 +192,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
           <?php
             $sql = "SELECT * FROM `notes`";
             $result = mysqli_query($conn, $sql);
+            $sno = 0;
             while($row = mysqli_fetch_assoc($result)){
+              $sno = $sno + 1;
               echo "<tr>
-                      <th scope='row'>" . $row['s.no'] . "</th>
+                      <th scope='row'>" . $sno . "</th>
                       <td>" . $row['title'] . "</td>
                       <td>" . $row['description'] . "</td>
-                      <td> Actions </td>
+                      <td> <button  class='btn btn-sm btn-primary editBtn' id=" . $row['s.no'] . ">Edit</button> <button  class='btn btn-sm btn-primary deleteBtn' id=d" . $row['s.no'] . ">Delete</button> </td>
                     </tr>";
             }
+            
           ?>
+
+         
           </tbody>
         </table>
       </div>
+      <hr>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
@@ -146,5 +232,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST'){
         $('#myTable').DataTable();
       } );
     </script>
+         <script>
+          edits = document.getElementsByClassName('editBtn');
+          Array.from(edits).forEach((element)=>{
+            element.addEventListener("click", (e)=>{
+              console.log("edit", );
+              tr = e.target.parentNode.parentNode;
+              title = tr.getElementsByTagName("td")[0].innerText;
+              description = tr.getElementsByTagName("td")[1].innerText;
+              console.log(title, description);
+              titleEdit.value = title;
+              descriptionEdit.value = description;
+              snoEdit.value = e.target.id;
+              console.log(e.target.id);
+              $('#editModal').modal('toggle');
+            })
+          })
+
+          deletes = document.getElementsByClassName('deleteBtn');
+          Array.from(deletes).forEach((element)=>{
+            element.addEventListener("click", (e)=>{
+              console.log("deletes", );
+              sno = e.target.id.substr(1,);
+
+              if (confirm("Are you sure you want to delete this note!")){
+                console.log("yes");
+                window.location = `/xkphpt/Crud-PHP/crud.php?delete=${sno}`;
+                // TODO: Create a form and use post request to submit a form
+
+              }
+              else {
+                console.log("no");
+              }
+            })
+          })
+        </script>
   </body>
 </html>
