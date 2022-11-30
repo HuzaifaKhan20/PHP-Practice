@@ -1,0 +1,7 @@
+This content has been added to the myfile2.txt
+This is another content added to the myfile2.txt
+This is 3rd content added to the myfile2.txt
+This is the content appended to the myfile2.txt
+This is the content appended to the myfile2.txt
+This is the content appended to the myfile2.txt
+This is the content appended to the myfile2.txt
