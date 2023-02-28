@@ -1,3 +1,26 @@
+<?php
+  $login = false;
+  $showError = false;
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+  include 'partials/_dbconnect.php';
+  $username = $_POST["username"];
+  $password = $_POST["password"];
+
+  $sql = "Select * from users where username='$username' AND password='$password'";
+  $result = mysqli_query($conn, $sql);
+  $num = mysqli_num_rows($result);
+  if($num == 1){
+    $login = true;
+    session_start();
+    $_SESSION['loggedin'] = true;
+    $_SESSION['username'] = $username;
+    header("location: welcome.php");
+  }
+  else{
+    $showError = "Invalid Credentials";
+  }
+}
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -12,6 +35,34 @@
   </head>
   <body>
     <?php require 'partials/_nav.php' ?>
+    <?php
+    if($login){
+      echo '<div class="alert alert-success alert-dismissible fade show" role="alert">
+        <strong>Success!</strong> Yousre logged in
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>';
+    }
+    if($showError){
+      echo '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error!</strong> '. $showError .'
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>';
+    }
+    ?>
+    <div class="container my-5">
+      <h1 class="text-center">Login to our website</h1>
+      <form action="/xkphpt/loginsystem/login.php" method="POST">
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input name="username" type="text" class="form-control" id="username" aria-describedby="emailHelp">
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input name="password" type="password" class="form-control" id="password">
+        </div>
+        <button type="submit" class="btn btn-primary">Log in</button>
+      </form>
+    </div>
 
     <!-- Optional JavaScript; choose one of the two! -->
 
