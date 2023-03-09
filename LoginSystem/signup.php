@@ -6,17 +6,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
   $username = $_POST["username"];
   $password = $_POST["password"];
   $cpassword = $_POST["cpassword"];
-  $exists = false;
-  if(($password == $cpassword) && $exists == false){
-    $sql = "INSERT INTO `users` (`username`, `password`, `dt`) VALUES ('$username', '$password', current_timestamp())";
-    $result = mysqli_query($conn, $sql);
-    if($result){
-      $showAlert = true;
+  // $exists = false;
+  // Check whether this username exists
+  $existSql = "SELECT * FROM `users` WHERE username = '$username'";
+  $result = mysqli_query($conn, $existSql);
+  $numExistRows = mysqli_num_rows($result);
+  if($numExistRows > 0){
+    // $exists = true;
+    $showError = "Username already exists";
+  }
+  else {
+    // $exists = false;
+    if(($password == $cpassword)){
+      $hash = password_hash($password, PASSWORD_DEFAULT);
+      $sql = "INSERT INTO `users` (`username`, `password`, `dt`) VALUES ('$username', '$hash', current_timestamp())";
+      $result = mysqli_query($conn, $sql);
+      if($result){
+        $showAlert = true;
+      }
     }
-  }
-  else{
-    $showError = "Passwords do not match";
-  }
+    else{
+      $showError = "Passwords do not match";
+    }
+}
 }
 ?>
 <!doctype html>
@@ -52,15 +64,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
       <form action="/xkphpt/loginsystem/signup.php" method="POST">
         <div class="mb-3">
           <label for="username" class="form-label">Username</label>
-          <input name="username" type="text" class="form-control" id="username" aria-describedby="emailHelp">
+          <input name="username" maxlength="11" type="text" class="form-control" id="username" aria-describedby="emailHelp">
         </div>
         <div class="mb-3">
           <label for="password" class="form-label">Password</label>
-          <input name="password" type="password" class="form-control" id="password">
+          <input name="password" maxlength="23" type="password" class="form-control" id="password">
         </div>
         <div class="mb-3">
           <label for="cpassword" class="form-label">Confirm Password</label>
-          <input name="cpassword" type="password" class="form-control" id="cpassword">
+          <input name="cpassword" type="password" class="form-control" id="cpassword"> 
           <div id="emailHelp" class="form-text">Make sure to type the same password</div>
         </div>
         <button type="submit" class="btn btn-primary">Sign Up</button>
