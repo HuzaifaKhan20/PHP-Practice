@@ -1,0 +1,13 @@
+PHP Tutorial # 51 ---- 00:00
+
+PHP = Hypertext Preprocessor
+
+SQL = Structured Query Language
+
+Playlist Link:- https://www.youtube.com/playlist?list=PLu0W_9lII9aikXkRE0WxDt1vozo3hnmtR
+
+PHP Codes :- https://www.codewithharry.com/videos/php-tutorials-in-hindi-21/
+
+Unsplash Random image api:- https://source.unsplash.com/random/400X500/?code,python
+
+
